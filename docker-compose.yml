@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+  db:
+    build: ./mariadb
+    ports:
+      - "3306:3306"
+    networks:
+      - appdev
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MARIA_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MARIA_DATABASE}
+      MYSQL_USER: ${MARIA_USER}
+      MYSQL_PASSWORD: ${MARIA_PASSWORD}
+    volumes:
+      - db-data:/var/lib/fangorn/data
+
+  server:
+    build: ./server
+    ports: 
+      - "4242:4242"
+    links:
+      - db:nidaigle
+    networks:
+      - appdev
+    environment:
+      WAIT_HOSTS: db:3306
+    restart: always
+
+  client:
+    build: ./client
+    ports: 
+      - "8080:8080"
+    links:
+      - db:nidaigle
+    networks:
+      - appdev
+    environment:
+      WAIT_HOSTS: db:3306
+    restart: always
+
+networks:
+  appdev:
+
+volumes:
+  db-data:
